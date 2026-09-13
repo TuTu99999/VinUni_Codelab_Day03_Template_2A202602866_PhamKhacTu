@@ -2,13 +2,25 @@ import json
 import os
 from typing import List, Dict, Any
 
-RAW_DATA_DIR = os.path.join(os.path.dirname(__file__), "..", "raw-data")
+PROJECT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+
+
+def _get_data_file(filename: str) -> str:
+    """Locate lab data in either the submission or autograder layout."""
+    candidates = (
+        os.path.join(PROJECT_DIR, "raw-data", filename),
+        os.path.join(PROJECT_DIR, "autograder", "raw-data", filename),
+    )
+    for candidate in candidates:
+        if os.path.isfile(candidate):
+            return candidate
+    return candidates[0]
 
 def get_flight_info(origin: str, destination: str, max_price: int = 5000000) -> List[Dict[str, Any]]:
     """
     Search for flights matching origin, destination, and budget constraint.
     """
-    flight_file = os.path.join(RAW_DATA_DIR, "flight_data.json")
+    flight_file = _get_data_file("flight_data.json")
     if not os.path.exists(flight_file):
         return []
     
@@ -27,7 +39,7 @@ def get_weather_forecast(city_code: str) -> Dict[str, Any]:
     """
     Get weather forecast and outfit recommendation for a city code (e.g. SGN, HAN, DAD).
     """
-    weather_file = os.path.join(RAW_DATA_DIR, "weather_data.json")
+    weather_file = _get_data_file("weather_data.json")
     if not os.path.exists(weather_file):
         return {"error": "Weather data not found"}
     
